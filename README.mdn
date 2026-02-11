@@ -1,0 +1,48 @@
+# Proyéctate — Versión “Root” (sin carpetas)
+
+Esta variante está pensada para funcionar **con todos los archivos en el root** y, además, poder abrirse incluso en modo `file://` (sin servidor), gracias a que incluye los datos embebidos en `proyectate_data.js`.
+
+---
+
+## 📁 Estructura (todo en el root)
+
+```text
+/
+├─ index.html
+├─ styles.css
+├─ app.js
+├─ proyectate_data.js                         (auto-generado, datos embebidos)
+├─ proyectate_con_cuoc_map_y_recomendador_v2.json  (JSON original, opcional para fetch)
+├─ logo.svg
+├─ README.mdn
+└─ .nojekyll
+```
+
+---
+
+## ✅ Cómo usar
+
+### Opción 1 — Abrir directo (file://)
+- Abre `index.html` con doble clic.
+- Carga automática desde `proyectate_data.js`.
+
+### Opción 2 — GitHub Pages / servidor
+- Sube todo al repo y activa Pages.
+- La app intentará primero datos embebidos; si no están, intentará `fetch` al JSON del root.
+
+---
+
+## 🖼️ Logo
+Reemplaza `logo.svg` por el logo real (mantén el mismo nombre) o cambia la ruta en `index.html`.
+
+---
+
+## 🔧 Si necesitas regenerar `proyectate_data.js`
+Si actualizas el JSON, vuelve a generar `proyectate_data.js` con este script (Python):
+
+```python
+import json
+data=json.load(open("proyectate_con_cuoc_map_y_recomendador_v2.json","r",encoding="utf-8"))
+s=json.dumps(data, ensure_ascii=False, separators=(",",":")).replace("\u2028","\\u2028").replace("\u2029","\\u2029")
+open("proyectate_data.js","w",encoding="utf-8").write("window.PROYECTATE_DATA = "+s+";\n")
+```

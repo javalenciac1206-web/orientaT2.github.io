@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Proyéctate — Test adaptativo + Recomendaciones CUOC</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <!-- PDF export (CDN). Si no hay internet, el botón hará fallback a Imprimir → Guardar como PDF -->
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js" defer></script>
+  <script src="./proyectate_data.js" defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__left">
+      <div class="brand">
+        <img class="brand__logo" src="./logo.svg" alt="Logo de la entidad" />
+        <div class="brand__text">
+          <div class="brand__title">Proyéctate</div>
+        <div class="brand__subtitle">Test adaptativo · Recomendaciones CUOC</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar__right">
+      <button id="btnDownloadPdf" class="btn btn--primary hidden" type="button">Descargar PDF</button>
+      <button id="btnRestart" class="btn btn--ghost hidden" type="button">Reiniciar</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="loading" class="card">
+      <h1>Cargando…</h1>
+      <p id="loadingMsg" class="muted">Cargando datos del test…</p>
+      <p id="loadDebug" class="muted small hidden"></p>
+
+      <div id="manualLoad" class="hidden">
+        <hr/>
+        <h2>Cargar archivo manualmente</h2>
+        <p class="muted">Esta versión puede abrirse en <code>file://</code> porque incluye los datos embebidos. Si aún así no carga, puedes seleccionar el JSON manualmente aquí.</p>
+        <input id="fileInput" type="file" accept="application/json" />
+        <button id="btnLoadDemo" class="btn btn--ghost" type="button">Cargar JSON seleccionado</button>
+      </div>
+    </section>
+
+    <section id="intro" class="card hidden">
+      <h1>Instrucciones</h1>
+      <p>Voy a presentarte una serie de actividades breves y tú me respondes "Me interesa" o "No me interesa", según si te gustaría aprender y dedicarte a algo así.</p>
+      <p class="muted">No pienses en si ya tienes las habilidades, solo en si la actividad en sí te llama la atención.</p>
+      <p><strong>¿Listo para empezar?</strong></p>
+      <p class="muted">Pulsa el botón <strong>Comenzar</strong>.</p>
+
+      <div class="actions">
+        <button id="btnStart" class="btn btn--primary" type="button">Comenzar</button>
+      </div>
+    </section>
+
+    <!-- TEST: preguntas por bloques (máx. 5) -->
+    <section id="test" class="card hidden">
+      <div class="question">
+        <div class="question__label">Preguntas</div>
+        <div id="qBlock" class="qblock"></div>
+      </div>
+
+      <div class="actions actions--center">
+        <button id="btnNextBlock" class="btn btn--primary hidden" type="button">Siguiente</button>
+      </div>
+
+      <div id="hint" class="muted"></div>
+    </section>
+
+    <section id="results" class="card hidden">
+      <div id="report" class="report">
+        <h1>Reporte</h1>
+        <p class="muted">Este reporte resume tus áreas predominantes y sugiere ocupaciones CUOC relacionadas.</p>
+
+
+        <div class="reportLayout">
+          <aside class="reportSide">
+            <div id="competenceGuide" class="guide">
+              <h2>¿Qué significan los niveles de competencia?</h2>
+
+              <div class="panel guideCard neon neon--pink">
+                <h4>Nivel 1: Trabajos de ejecución básica (no calificados)</h4>
+                <p><strong>Incluye:</strong> tareas manuales, físicas y repetitivas. Uso de herramientas manuales (pala, escoba) o equipos simples (aspiradora, cortadora de césped). Labores como limpieza, excavación, carga/descarga manual, clasificación o ensamblaje básico, cosecha manual.</p>
+                <p><strong>Perfil típico:</strong> se priorizan capacidades físicas. Capacitación breve en el lugar de trabajo. Lectoescritura/aritmética básicas pueden ayudar.</p>
+                <p class="muted"><strong>Ejemplos:</strong> personal de limpieza, peones de construcción, jardineros de mantenimiento, ayudantes de cocina, cosechadores.</p>
+              </div>
+
+              <div class="panel guideCard neon neon--blue">
+                <h4>Nivel 2: Trabajos técnicos y operativos (calificación media-baja)</h4>
+                <p><strong>Incluye:</strong> oficios y operaciones con destreza práctica en máquinas/equipos o información específica. Operar maquinaria, conducir vehículos, mantenimiento y reparaciones básicas, manejo/archivo de datos y documentación.</p>
+                <p><strong>Perfil típico:</strong> comprensión de instrucciones técnicas y registros. Lectoescritura y aritmética sólidas (secundaria). Experiencia/capacitación en el puesto puede compensar estudios.</p>
+                <p class="muted"><strong>Ejemplos:</strong> conductores, operadores industriales, técnicos de mantenimiento básico, mecánicos, montadores, auxiliares administrativos.</p>
+              </div>
+
+              <div class="panel guideCard neon neon--green">
+                <h4>Nivel 3: Técnicos especialistas y supervisores (calificación media-alta)</h4>
+                <p><strong>Incluye:</strong> tareas técnicas complejas, procedimientos especializados y supervisión. Cumplimiento de normas, cálculos/presupuestos, coordinación y soporte técnico avanzado.</p>
+                <p><strong>Perfil típico:</strong> conocimiento técnico avanzado, lectura de manuales/normativas, redacción de informes y cálculos avanzados. Suele requerir formación técnica superior o experiencia amplia equivalente.</p>
+                <p class="muted"><strong>Ejemplos:</strong> supervisor de producción, técnico de laboratorio clínico, secretario/a judicial, soporte IT avanzado, técnico en imagen, técnico de sonido, ventas técnicas.</p>
+              </div>
+
+              <div class="panel guideCard neon neon--purple">
+                <h4>Nivel 4: Profesionales y especialistas (calificación alta)</h4>
+                <p><strong>Incluye:</strong> resolución de problemas complejos, investigación, diagnóstico/tratamiento, enseñanza y diseño de sistemas o procesos complejos.</p>
+                <p><strong>Perfil típico:</strong> dominio teórico y técnico profundo, generalmente con formación universitaria o superior. Pensamiento crítico, creatividad, decisiones no rutinarias y comunicación avanzada. En muchas ocupaciones, titulación habilitante es clave.</p>
+                <p class="muted"><strong>Ejemplos:</strong> ingeniero/a civil, médico/a, docente de secundaria, analista/diseñador de sistemas, gerente de marketing, músico/compositor profesional.</p>
+              </div>
+            </div>
+          </aside>
+
+          <section class="reportMain">
+            <div class="panel neon">
+              <h2>Top-2 perfiles ocupacionales (CUOC)</h2>
+              <div id="topProfiles" class="badges"></div>
+            </div>
+
+            <hr/>
+
+            <h2>Configura tus filtros</h2>
+            <p class="muted">Antes de mostrar ocupaciones, elige <strong>Área de cualificación principal (CUOC)</strong> y <strong>Nivel de competencia</strong>. Esto hace la lista más útil y fácil de leer.</p>
+
+            <div class="filters filters--gate">
+              <div class="field">
+                <label for="filterAreaPrincipal">Área de cualificación principal (CUOC) <span class="req">*</span></label>
+                <select id="filterAreaPrincipal"></select>
+              </div>
+
+              <div class="field">
+                <label for="filterMaxCompetence">Nivel de competencia <span class="req">*</span></label>
+                <select id="filterMaxCompetence">
+                  <option value="" selected>Selecciona…</option>
+                  <option value="1">Hasta nivel 1</option>
+                  <option value="2">Hasta nivel 2</option>
+                  <option value="3">Hasta nivel 3</option>
+                  <option value="4">Hasta nivel 4</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="filterSearch">Buscar (opcional)</label>
+                <input id="filterSearch" type="text" placeholder="Ej. enfermería, programación, diseño…" />
+              </div>
+
+              <div class="field field--inline">
+                <label>
+                  <input id="filterExcludeDefault" type="checkbox" checked />
+                  Reducir “asignación por defecto”
+                </label>
+              </div>
+
+              <div class="field">
+                <label for="filterPerProfile">Cantidad por perfil</label>
+                <select id="filterPerProfile">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="30">30</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="filterTopN">Total global</label>
+                <select id="filterTopN">
+                  <option value="30">30</option>
+                  <option value="40" selected>40</option>
+                  <option value="60">60</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button id="btnShowOcc" class="btn btn--primary" type="button">Ver ocupaciones</button>
+              <div id="gateMsg" class="muted small"></div>
+            </div>
+
+            <hr/>
+
+            <div id="pdfSummary" class="pdfSummary hidden"></div>
+            <div id="occSummary" class="muted small"></div>
+
+            <div id="occContainer" class="occ hidden"></div>
+          </section>
+        </div>
+
+</div>
+    </section>
+
+    <footer class="footer muted small">
+      <p>Tip: Si “Descargar PDF” no funciona (sin internet), usa <strong>Ctrl+P / Imprimir</strong> y guarda como PDF.</p>
+    </footer>
+  </main>
+</body>
+</html>
